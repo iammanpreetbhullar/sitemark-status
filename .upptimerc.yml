@@ -17,13 +17,12 @@ sites:
     url: https://beta.sitemark.in
     maxResponseTime: 10000
   # Liveness only — the API process answers. Does not touch the database.
-  # The Cloud Run URL: api.sitemark.in has no DNS record yet. Switch both API checks to
-  # it once the domain is mapped to the service.
+  # api.sitemark.in is a Cloud Run domain mapping onto the sitemark-api service.
   - name: API
-    url: https://sitemark-api-179761712596.us-central1.run.app/health
+    url: https://api.sitemark.in/health
   # A real `SELECT 1` through the API; 503 when the database is unreachable.
   - name: Database
-    url: https://sitemark-api-179761712596.us-central1.run.app/health/ready
+    url: https://api.sitemark.in/health/ready
     maxResponseTime: 10000
   # Live updates between the dashboard and the extension.
   - name: Realtime
