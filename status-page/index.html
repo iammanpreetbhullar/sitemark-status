@@ -374,18 +374,45 @@
     }
   }
 
+  /*
+   * When the checks last ran. Upptime only writes a result to the repo when a status
+   * changes, so the history files' `lastUpdated` is "last change", not "last check". The
+   * last successful Uptime CI run is the real answer; it costs one GitHub API call, so it
+   * is cached for 5 minutes. Unknown (null) hides the line rather than show a wrong time.
+   */
+  const LASTRUN_KEY = "sitemark-status-last-run";
+  const LASTRUN_TTL = 5 * 60 * 1000;
+  async function loadLastRun() {
+    let cached = null;
+    try { cached = JSON.parse(localStorage.getItem(LASTRUN_KEY)); } catch {}
+    if (cached && Date.now() - cached.t < LASTRUN_TTL) return cached.at;
+    try {
+      const d = await getJSON(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/actions/workflows/uptime.yml/runs?status=success&per_page=1`);
+      const at = d.workflow_runs?.[0] ? Date.parse(d.workflow_runs[0].updated_at) : null;
+      try { localStorage.setItem(LASTRUN_KEY, JSON.stringify({ t: Date.now(), at })); } catch {}
+      return at;
+    } catch {
+      return cached ? cached.at : null;
+    }
+  }
+
   async function load() {
     const summary = await getJSON(`${RAW}/history/summary.json`);
-    const [ymls, issues] = await Promise.all([
+    const [ymls, issues, lastRun] = await Promise.all([
       Promise.all(summary.map((s) => getText(`${RAW}/history/${s.slug}.yml`).catch(() => ""))),
       loadIssues(),
+      loadLastRun(),
     ]);
     const sites = summary.map((s, i) => ({
       ...s,
       startTime: ymlField(ymls[i], "startTime"),
       lastUpdated: ymlField(ymls[i], "lastUpdated"),
     }));
-    return { sites, issues };
+    // A status change (or Setup CI) also counts as a check, and can be newer than the
+    // last Uptime CI run.
+    const lastChange = Math.max(...sites.map((s) => s.lastUpdated).filter(Number.isFinite));
+    const lastCheck = Number.isFinite(lastRun) ? Math.max(lastRun, Number.isFinite(lastChange) ? lastChange : 0) : null;
+    return { sites, issues, lastCheck };
   }
 
   /* ---------- day model ---------- */
@@ -419,7 +446,7 @@
   /* ---------- rendering ---------- */
   let model = [];
 
-  function renderBanner(sites, issues) {
+  function renderBanner(sites, issues, last) {
     const el = $("#banner");
     const down = sites.filter((s) => s.status === "down").length;
     const degraded = sites.filter((s) => s.status === "degraded").length;
@@ -427,7 +454,6 @@
     if (down && down === sites.length) { state = "major"; title = "Major System Outage"; icon = ICON.bannerWarn; }
     else if (down) { state = "partial"; title = down === 1 ? "Partial System Outage" : `${down} Systems Down`; icon = ICON.bannerWarn; }
     else if (degraded) { state = "degraded"; title = "Degraded Performance"; icon = ICON.bannerWarn; }
-    const last = Math.max(...sites.map((s) => s.lastUpdated).filter(Number.isFinite));
     el.dataset.state = state;
     el.innerHTML = `${icon}<h1>${title}</h1>${Number.isFinite(last) ? `<p data-ago="${last}">Last checked ${ago(last)}</p>` : ""}`;
 
@@ -600,10 +626,10 @@
   /* ---------- lifecycle ---------- */
   async function refresh() {
     try {
-      const { sites, issues } = await load();
+      const { sites, issues, lastCheck } = await load();
       const now = Date.now();
       hide();
-      renderBanner(sites, issues);
+      renderBanner(sites, issues, lastCheck);
       renderList(sites, issues, now);
       renderPast(issues, now);
     } catch (err) {
