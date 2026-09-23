@@ -1,7 +1,7 @@
-url: https://sitemark-api-179761712596.us-central1.run.app/health
+url: https://api.sitemark.in/health
 status: up
 code: 200
-responseTime: 134
-lastUpdated: 2026-09-23T12:09:12.216Z
+responseTime: 257
+lastUpdated: 2026-09-23T12:23:35.929Z
 startTime: 2026-09-23T10:31:22.904Z
 generator: Upptime <https://github.com/upptime/upptime>
