@@ -14,7 +14,7 @@ workflowSchedule:
 sites:
   # The marketing site and dashboard.
   - name: Dashboard
-    url: https://beta.sitemark.in
+    url: https://sitemark.in
     maxResponseTime: 10000
   # Liveness only — the API process answers. Does not touch the database.
   # api.sitemark.in is a Cloud Run domain mapping onto the sitemark-api service.
@@ -29,7 +29,7 @@ sites:
     url: https://ws.sitemark.in/health
   # The path the browser extension takes: app proxy → API → database.
   - name: Extension sync
-    url: https://beta.sitemark.in/api/proxy/health/ready
+    url: https://sitemark.in/api/proxy/health/ready
     maxResponseTime: 10000
 
 status-website:
@@ -41,4 +41,4 @@ status-website:
     - title: Status
       href: /
     - title: Sitemark
-      href: https://beta.sitemark.in
+      href: https://sitemark.in
