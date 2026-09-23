@@ -1,8 +1,10 @@
-# Deploys site/ (the 90-day status page) to GitHub Pages.
+# Deploys status-page/ (the 90-day status page) to GitHub Pages.
 #
 # Not one of Upptime's workflows, so its template updates leave it alone. The page reads
-# history/summary.json live, so it only needs deploying when site/ itself changes — not on
+# history/summary.json live, so it only needs deploying when status-page/ itself changes — not on
 # every uptime check.
+#
+# Not named site/: Upptime builds its own page in site/ and fails if it exists.
 #
 # Requires Settings → Pages → Source: "GitHub Actions". Upptime's own Static Site CI keeps
 # pushing to gh-pages, which is then simply not served.
@@ -12,7 +14,7 @@ on:
   push:
     branches: [master]
     paths:
-      - "site/**"
+      - "status-page/**"
       - ".github/workflows/status-page.yml"
   workflow_dispatch:
 
@@ -36,6 +38,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: status-page
       - id: deployment
         uses: actions/deploy-pages@v4
