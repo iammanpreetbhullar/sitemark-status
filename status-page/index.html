@@ -12,7 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* Colours are Sitemark's own ramps (sitemark-ui/src/app/globals.css). */
+  /* Colours are Sitemark's own ramps (sitemark-ui/src/app/globals.css), except the minor
+     and partial day colours, which were picked to stay apart from each other. */
   :root {
     --page: #FAF9F7;
     --card: #FFFFFF;
@@ -22,9 +23,11 @@
     --accent: #2B3FC9;
     --citron: #E5FF00;
     --day-ok: #12B76A;
-    --day-minor: #FDB022;
-    --day-partial: #F79009;
-    --day-major: #F04438;
+    /* Severity steps checked for separation (normal vision and colour-blindness):
+       yellow → orange → deep red, each step darker as well as warmer. */
+    --day-minor: #FACC15;
+    --day-partial: #F97316;
+    --day-major: #B42318;
     --day-none: #E4E1DB;
     --banner-ok: #027A48;
     --banner-degraded: #B54708;
@@ -43,9 +46,9 @@
       --muted: #8C877F;
       --accent: #6572DE;
       --day-ok: #32D583;
-      --day-minor: #FEC84B;
-      --day-partial: #FDB022;
-      --day-major: #F97066;
+      --day-minor: #FDE047;
+      --day-partial: #FB923C;
+      --day-major: #F04438;
       --day-none: #2E2C28;
       --banner-ok: #05603A;
       --banner-degraded: #93370D;
