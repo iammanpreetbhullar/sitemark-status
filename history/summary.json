@@ -40,19 +40,19 @@
     "url": "https://sitemark-api-179761712596.us-central1.run.app/health/ready",
     "icon": "https://icons.duckduckgo.com/ip3/sitemark-api-179761712596.us-central1.run.app.ico",
     "slug": "database",
-    "status": "down",
-    "uptime": "2.91%",
-    "uptimeDay": "2.91%",
-    "uptimeWeek": "2.91%",
-    "uptimeMonth": "2.91%",
-    "uptimeYear": "2.91%",
-    "time": 52,
-    "timeDay": 52,
-    "timeWeek": 52,
-    "timeMonth": 52,
-    "timeYear": 52,
+    "status": "up",
+    "uptime": "2.39%",
+    "uptimeDay": "2.39%",
+    "uptimeWeek": "2.39%",
+    "uptimeMonth": "2.39%",
+    "uptimeYear": "2.39%",
+    "time": 194,
+    "timeDay": 194,
+    "timeWeek": 194,
+    "timeMonth": 194,
+    "timeYear": 194,
     "dailyMinutesDown": {
-      "2026-09-23": 11
+      "2026-09-23": 20
     }
   },
   {
@@ -78,19 +78,19 @@
     "url": "https://beta.sitemark.in/api/proxy/health/ready",
     "icon": "https://icons.duckduckgo.com/ip3/beta.sitemark.in.ico",
     "slug": "extension-sync",
-    "status": "down",
-    "uptime": "3.01%",
-    "uptimeDay": "3.01%",
-    "uptimeWeek": "3.01%",
-    "uptimeMonth": "3.01%",
-    "uptimeYear": "3.01%",
-    "time": 229,
-    "timeDay": 229,
-    "timeWeek": 229,
-    "timeMonth": 229,
-    "timeYear": 229,
+    "status": "up",
+    "uptime": "2.14%",
+    "uptimeDay": "2.14%",
+    "uptimeWeek": "2.14%",
+    "uptimeMonth": "2.14%",
+    "uptimeYear": "2.14%",
+    "time": 429,
+    "timeDay": 429,
+    "timeWeek": 429,
+    "timeMonth": 429,
+    "timeYear": 429,
     "dailyMinutesDown": {
-      "2026-09-23": 11
+      "2026-09-23": 19
     }
   }
 ]
