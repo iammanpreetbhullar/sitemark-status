@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sitemark Status</title>
+<meta name="description" content="Live status and 90-day uptime of the Sitemark dashboard, API and browser extension.">
+<meta name="theme-color" content="#FAF9F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141311" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='8 8 48 48'%3E%3Cpath d='M8 56V32A24 24 0 0 1 32 8A24 24 0 0 1 56 32A24 24 0 0 1 32 56Z' fill='%232B3FC9'/%3E%3Ccircle cx='32' cy='32' r='8.5' fill='%23E5FF00'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Colours are Sitemark's own ramps (sitemark-ui/src/app/globals.css). */
+  :root {
+    --page: #FAF9F7;
+    --card: #FFFFFF;
+    --border: #E4E1DB;
+    --text: #22211E;
+    --muted: #6B6862;
+    --accent: #2B3FC9;
+    --citron: #E5FF00;
+    --day-ok: #12B76A;
+    --day-minor: #FDB022;
+    --day-partial: #F79009;
+    --day-major: #F04438;
+    --day-none: #E4E1DB;
+    --banner-ok: #027A48;
+    --banner-degraded: #B54708;
+    --banner-outage: #B42318;
+    --banner-unknown: #5B5852;
+    --tip-bg: #22211E;
+    --tip-text: #F2F0EC;
+    --shadow: 0 1px 2px rgba(34, 33, 30, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #141311;
+      --card: #1C1B19;
+      --border: #2E2C28;
+      --text: #F2F0EC;
+      --muted: #8C877F;
+      --accent: #6572DE;
+      --day-ok: #32D583;
+      --day-minor: #FEC84B;
+      --day-partial: #FDB022;
+      --day-major: #F97066;
+      --day-none: #2E2C28;
+      --banner-ok: #05603A;
+      --banner-degraded: #93370D;
+      --banner-outage: #912018;
+      --banner-unknown: #3D3A35;
+      --tip-bg: #F2F0EC;
+      --tip-text: #22211E;
+      --shadow: none;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font: 15px/1.5 "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* Header */
+  .top { border-bottom: 1px solid var(--border); background: var(--card); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-weight: 600; font-size: 20px; letter-spacing: -0.035em; }
+  .brand:hover { text-decoration: none; }
+  .brand svg { width: 22px; height: 22px; }
+  .brand .pin { fill: var(--accent); }
+  .brand .dot { fill: var(--citron); }
+  .brand .label { color: var(--muted); font-weight: 500; letter-spacing: -0.01em; }
+  .top nav a { font-size: 14px; font-weight: 500; }
+
+  main { padding: 32px 0 48px; }
+
+  /* Overall banner */
+  .banner {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px; border-radius: 10px;
+    color: #fff; background: var(--banner-unknown);
+  }
+  .banner[data-state="ok"] { background: var(--banner-ok); }
+  .banner[data-state="degraded"] { background: var(--banner-degraded); }
+  .banner[data-state="partial"], .banner[data-state="major"] { background: var(--banner-outage); }
+  .banner svg { width: 22px; height: 22px; flex: none; }
+  .banner h1 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  .banner p { margin: 0 0 0 auto; font-size: 13px; opacity: .85; white-space: nowrap; }
+  .banner button { margin-left: auto; font: inherit; font-size: 13px; color: inherit; background: rgba(255,255,255,.15); border: 0; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+
+  /* Active incidents */
+  .active { margin-top: 16px; display: grid; gap: 12px; }
+  .active:empty { display: none; }
+  .incident {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--day-major);
+    border-radius: 10px; padding: 14px 18px; box-shadow: var(--shadow);
+  }
+  .incident h2 { margin: 0; font-size: 15px; font-weight: 600; }
+  .incident p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+  /* Components */
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; margin: 40px 0 14px; }
+  .section-head h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+  .grid {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; box-shadow: var(--shadow);
+  }
+  @media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  .comp { padding: 20px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); min-width: 0; }
+  @media (min-width: 761px) {
+    .comp:nth-child(2n) { border-right: 0; }
+    .comp:nth-last-child(-n+2):nth-child(odd), .comp:last-child { border-bottom: 0; }
+  }
+  @media (max-width: 760px) { .comp { border-right: 0; } .comp:last-child { border-bottom: 0; } }
+  .comp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .comp-head h3 { margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .info {
+    width: 18px; height: 18px; flex: none; padding: 0; border-radius: 50%;
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    font: 600 11px/1 inherit; cursor: help;
+  }
+  .state-icon { width: 22px; height: 22px; flex: none; }
+  .state-icon[data-state="up"] { color: var(--day-ok); }
+  .state-icon[data-state="degraded"] { color: var(--day-partial); }
+  .state-icon[data-state="down"] { color: var(--day-major); }
+
+  /* The 90-day meter. Narrow cards show fewer days so bars never get thinner than ~3px. */
+  .meter { container-type: inline-size; }
+  .bars { display: flex; gap: 2px; height: 34px; cursor: default; border-radius: 3px; }
+  .bar { flex: 1 1 0; min-width: 0; border-radius: 2px; background: var(--day-none); transition: opacity .1s; }
+  .bar[data-s="ok"] { background: var(--day-ok); }
+  .bar[data-s="minor"] { background: var(--day-minor); }
+  .bar[data-s="partial"] { background: var(--day-partial); }
+  .bar[data-s="major"] { background: var(--day-major); }
+  .bars:hover .bar, .bars.inspecting .bar { opacity: .55; }
+  .bars .bar.on { opacity: 1; }
+  .axis { display: flex; align-items: center; gap: 12px; margin-top: 8px; color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .axis .rule { flex: 1; height: 1px; background: var(--border); }
+  .axis .pct { color: var(--text); }
+  .w60, .w30 { display: none; }
+  @container (max-width: 449px) {
+    .bars .bar:nth-child(-n+30) { display: none; }
+    .w90 { display: none; } .w60 { display: inline; }
+  }
+  @container (max-width: 299px) {
+    .bars .bar:nth-child(-n+60) { display: none; }
+    .w60 { display: none; } .w30 { display: inline; }
+  }
+  .comp-foot { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+
+  /* Recent incidents */
+  .past { background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); }
+  .past ol { list-style: none; margin: 0; padding: 0; }
+  .past li { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: baseline; }
+  .past li:last-child { border-bottom: 0; }
+  .past .when { color: var(--muted); font-size: 13px; }
+  .past .title { font-weight: 500; }
+  .past .empty { color: var(--muted); }
+  .past-foot { padding: 12px 20px; border-top: 1px solid var(--border); font-size: 13px; }
+  .dot-i { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--day-ok); transform: translateY(-1px); }
+  .dot-i[data-open] { background: var(--day-major); }
+
+  footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+  footer p { margin: 4px 0; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 12px 2px 0; color: var(--muted); font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  /* Tooltip */
+  .tip {
+    position: fixed; z-index: 10; max-width: 280px; pointer-events: none;
+    background: var(--tip-bg); color: var(--tip-text); border-radius: 8px;
+    padding: 10px 12px; font-size: 13px; line-height: 1.45; box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  }
+  .tip[hidden] { display: none; }
+  .tip strong { display: block; font-weight: 600; margin-bottom: 2px; }
+  .tip .row { display: flex; align-items: center; gap: 6px; }
+  .tip .sw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+  .tip ul { margin: 6px 0 0; padding: 0 0 0 14px; }
+
+  /* Loading skeleton */
+  .skeleton .bar { background: var(--day-none) !important; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { .skeleton .bar { animation: none; } .bar { transition: none; } }
+
+  @media (max-width: 520px) {
+    main { padding-top: 20px; }
+    .banner { flex-wrap: wrap; padding: 14px 16px; }
+    .banner h1 { font-size: 17px; }
+    .banner p { margin: 0; flex-basis: 100%; padding-left: 34px; white-space: normal; }
+    .comp { padding: 16px; }
+    .section-head { margin-top: 32px; }
+    .past li { padding: 12px 16px; flex-wrap: wrap; gap: 4px 10px; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Sitemark status">
+      <svg viewBox="8 8 48 48" aria-hidden="true"><path class="pin" d="M8 56V32A24 24 0 0 1 32 8A24 24 0 0 1 56 32A24 24 0 0 1 32 56Z"/><circle class="dot" cx="32" cy="32" r="8.5"/></svg>
+      <span>sitemark</span><span class="label">Status</span>
+    </a>
+    <nav><a href="https://beta.sitemark.in">Go to Sitemark →</a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="banner" class="banner" data-state="unknown" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
+    <h1>Checking systems…</h1>
+  </section>
+
+  <section id="active" class="active" aria-label="Active incidents"></section>
+
+  <div class="section-head">
+    <h2>Current status</h2>
+    <p>Daily uptime history. Hover or tap a day for details. Days are in UTC.</p>
+  </div>
+  <section id="list" class="grid skeleton" aria-busy="true"></section>
+  <div class="legend" aria-hidden="true">
+    <span><i style="background:var(--day-ok)"></i>No downtime</span>
+    <span><i style="background:var(--day-minor)"></i>Up to 30 min down</span>
+    <span><i style="background:var(--day-partial)"></i>Up to 4 h down</span>
+    <span><i style="background:var(--day-major)"></i>Over 4 h down</span>
+    <span><i style="background:var(--day-none)"></i>No data</span>
+  </div>
+
+  <div class="section-head">
+    <h2>Recent incidents</h2>
+    <p>Last 30 days</p>
+  </div>
+  <section class="past">
+    <ol id="past"><li class="empty">Loading…</li></ol>
+    <div class="past-foot"><a id="all-incidents" href="#">View all incidents on GitHub →</a></div>
+  </section>
+
+  <footer>
+    <p>Checked every 10 minutes from GitHub Actions. This page refreshes itself.</p>
+    <p>Monitoring by <a href="https://upptime.js.org">Upptime</a>. Raw data in the <a id="repo-link" href="#">status repository</a>.</p>
+  </footer>
+</main>
+
+<div id="tip" class="tip" role="tooltip" aria-live="polite" hidden></div>
+<noscript><p class="wrap">This page needs JavaScript to load live status.</p></noscript>
+
+<script>
+(() => {
+  "use strict";
+
+  const CONFIG = {
+    owner: "iammanpreetbhullar",
+    repo: "sitemark-status",
+    branch: "master",
+    days: 90,
+    refreshMs: 5 * 60 * 1000,
+    /** Shown behind each component's "?" — keyed by the Upptime slug. */
+    descriptions: {
+      dashboard: "The Sitemark web app, where projects and pins are managed.",
+      api: "The API server is running and answering requests.",
+      database: "The API can reach the database, so pins and comments can be read and saved.",
+      realtime: "Live updates: new pins and replies appear without a reload.",
+      "extension-sync": "The route the browser extension uses to save pins: app → API → database.",
+    },
+  };
+
+  const RAW = `https://raw.githubusercontent.com/${CONFIG.owner}/${CONFIG.repo}/${CONFIG.branch}`;
+  const REPO_URL = `https://github.com/${CONFIG.owner}/${CONFIG.repo}`;
+  const DAY_MS = 86400000;
+
+  const $ = (sel) => document.querySelector(sel);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+  $("#repo-link").href = REPO_URL;
+  $("#all-incidents").href = `${REPO_URL}/issues?q=label%3Astatus`;
+
+  /* ---------- formatting ---------- */
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  function ago(t) {
+    const s = (t - Date.now()) / 1000;
+    const abs = Math.abs(s);
+    if (abs < 45) return "just now";
+    if (abs < 3600) return rtf.format(Math.round(s / 60), "minute");
+    if (abs < 86400) return rtf.format(Math.round(s / 3600), "hour");
+    return rtf.format(Math.round(s / 86400), "day");
+  }
+  function duration(min) {
+    if (min < 1) return "under a minute";
+    if (min < 60) return `${Math.round(min)} min`;
+    const h = Math.floor(min / 60), m = Math.round(min % 60);
+    return m ? `${h} h ${m} min` : `${h} h`;
+  }
+  const dayFmt = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  const whenFmt = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+  /** Floors, so 99.999% never reads as 100%. */
+  function pct(p) {
+    if (p == null) return "No data";
+    if (p >= 100) return "100% uptime";
+    return `${(Math.floor(Math.max(0, p) * 100) / 100).toFixed(2)}% uptime`;
+  }
+
+  /* ---------- icons ---------- */
+  const ICON = {
+    up: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    degraded: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 7v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.3" fill="#fff"/></svg>',
+    down: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    bannerOk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    bannerWarn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r=".6" fill="currentColor"/></svg>',
+    bannerUnknown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>',
+  };
+  const STATE_TEXT = { up: "Operational", degraded: "Degraded performance", down: "Outage" };
+  const DAY_TEXT = { ok: "No downtime", minor: "Minor outage", partial: "Partial outage", major: "Major outage", none: "No data" };
+
+  /* ---------- data ---------- */
+  async function getJSON(url) {
+    const r = await fetch(url, { cache: "no-cache" });
+    if (!r.ok) throw new Error(`${r.status} ${url}`);
+    return r.json();
+  }
+  async function getText(url) {
+    const r = await fetch(url, { cache: "no-cache" });
+    return r.ok ? r.text() : "";
+  }
+  const ymlField = (yml, key) => {
+    const m = yml.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
+    return m ? Date.parse(m[1].trim()) : NaN;
+  };
+
+  /*
+   * Incidents come from the GitHub API, which allows 60 unauthenticated calls an hour per
+   * IP — shared by everyone behind one office network. So the list is cached for 10
+   * minutes, and the last good copy is kept for when the limit is hit. The day bars do
+   * not depend on it: they come from summary.json on raw.githubusercontent.com.
+   */
+  const ISSUES_KEY = "sitemark-status-issues";
+  const ISSUES_TTL = 10 * 60 * 1000;
+  function readCache() {
+    try { return JSON.parse(localStorage.getItem(ISSUES_KEY)); } catch { return null; }
+  }
+  async function loadIssues() {
+    const cached = readCache();
+    if (cached && Date.now() - cached.t < ISSUES_TTL) return cached.list;
+    try {
+      // Only issues carrying the `status` label: labels need write access, so a stranger
+      // opening an issue on the public repo cannot post an "incident" here.
+      const raw = await getJSON(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/issues?state=all&labels=status&per_page=100`);
+      const list = raw.filter((i) => !i.pull_request).map((i) => ({
+        number: i.number, title: i.title, state: i.state, html_url: i.html_url,
+        created_at: i.created_at, closed_at: i.closed_at, labels: i.labels.map((l) => l.name),
+      }));
+      try { localStorage.setItem(ISSUES_KEY, JSON.stringify({ t: Date.now(), list })); } catch {}
+      return list;
+    } catch {
+      return cached ? cached.list : null;
+    }
+  }
+
+  async function load() {
+    const summary = await getJSON(`${RAW}/history/summary.json`);
+    const [ymls, issues] = await Promise.all([
+      Promise.all(summary.map((s) => getText(`${RAW}/history/${s.slug}.yml`).catch(() => ""))),
+      loadIssues(),
+    ]);
+    const sites = summary.map((s, i) => ({
+      ...s,
+      startTime: ymlField(ymls[i], "startTime"),
+      lastUpdated: ymlField(ymls[i], "lastUpdated"),
+    }));
+    return { sites, issues };
+  }
+
+  /* ---------- day model ---------- */
+  function buildDays(site, issues, now) {
+    const todayStart = Date.UTC(new Date(now).getUTCFullYear(), new Date(now).getUTCMonth(), new Date(now).getUTCDate());
+    const firstDown = Object.keys(site.dailyMinutesDown || {}).sort()[0];
+    const start = Number.isFinite(site.startTime) ? site.startTime : firstDown ? Date.parse(firstDown) : now;
+    const mine = (issues || []).filter((i) => i.labels.includes(site.slug));
+    const days = [];
+    for (let k = CONFIG.days - 1; k >= 0; k--) {
+      const d0 = todayStart - k * DAY_MS, d1 = d0 + DAY_MS;
+      const key = new Date(d0).toISOString().slice(0, 10);
+      const monitored = Math.max(0, Math.min(d1, now) - Math.max(d0, start)) / 60000;
+      const recorded = (site.dailyMinutesDown || {})[key] || 0;
+      const down = monitored > 0 ? Math.min(recorded, monitored) : recorded;
+      const s = monitored <= 0 && !down ? "none" : down === 0 ? "ok" : down <= 30 ? "minor" : down <= 240 ? "partial" : "major";
+      const incidents = mine.filter((i) => {
+        const a = Date.parse(i.created_at), b = i.closed_at ? Date.parse(i.closed_at) : now;
+        return a < d1 && b >= d0;
+      });
+      days.push({ d0, key, monitored, down, s, incidents });
+    }
+    return { days, start };
+  }
+  function uptime(days) {
+    let mon = 0, down = 0;
+    for (const d of days) { mon += d.monitored; down += d.down; }
+    return mon > 0 ? (1 - down / mon) * 100 : null;
+  }
+
+  /* ---------- rendering ---------- */
+  let model = [];
+
+  function renderBanner(sites, issues) {
+    const el = $("#banner");
+    const down = sites.filter((s) => s.status === "down").length;
+    const degraded = sites.filter((s) => s.status === "degraded").length;
+    let state = "ok", title = "All Systems Operational", icon = ICON.bannerOk;
+    if (down && down === sites.length) { state = "major"; title = "Major System Outage"; icon = ICON.bannerWarn; }
+    else if (down) { state = "partial"; title = down === 1 ? "Partial System Outage" : `${down} Systems Down`; icon = ICON.bannerWarn; }
+    else if (degraded) { state = "degraded"; title = "Degraded Performance"; icon = ICON.bannerWarn; }
+    const last = Math.max(...sites.map((s) => s.lastUpdated).filter(Number.isFinite));
+    el.dataset.state = state;
+    el.innerHTML = `${icon}<h1>${title}</h1>${Number.isFinite(last) ? `<p data-ago="${last}">Last checked ${ago(last)}</p>` : ""}`;
+
+    const open = (issues || []).filter((i) => i.state === "open");
+    $("#active").innerHTML = open.map((i) => `
+      <article class="incident">
+        <h2><a href="${esc(i.html_url)}">${esc(cleanTitle(i.title))}</a></h2>
+        <p>Investigating · started <span data-ago="${Date.parse(i.created_at)}">${ago(Date.parse(i.created_at))}</span></p>
+      </article>`).join("");
+  }
+
+  function cleanTitle(t) { return t.replace(/^[^\p{L}\p{N}]+/u, ""); }
+
+  function renderList(sites, issues, now) {
+    const list = $("#list");
+    model = sites.map((site) => ({ site, ...buildDays(site, issues, now) }));
+    list.innerHTML = model.map((m, idx) => {
+      const { site, days } = m;
+      const desc = CONFIG.descriptions[site.slug];
+      const state = STATE_TEXT[site.status] ? site.status : "down";
+      const u = (n) => pct(uptime(days.slice(-n)));
+      return `
+      <article class="comp">
+        <div class="comp-head">
+          <h3>${esc(site.name)}${desc ? `<button type="button" class="info" data-desc="${esc(desc)}" aria-label="About ${esc(site.name)}">?</button>` : ""}</h3>
+          <span class="state-icon" data-state="${state}" title="${STATE_TEXT[state]}">${ICON[state]}<span class="sr-only">${STATE_TEXT[state]}</span></span>
+        </div>
+        <div class="meter">
+          <div class="bars" data-idx="${idx}" tabindex="0" role="group"
+               aria-label="${esc(site.name)} daily history. Use the arrow keys to read each day.">
+            ${days.map((d, i) => `<span class="bar" data-s="${d.s}" data-i="${i}"></span>`).join("")}
+          </div>
+          <div class="axis">
+            <span><span class="w90">90 days ago</span><span class="w60">60 days ago</span><span class="w30">30 days ago</span></span>
+            <span class="rule"></span>
+            <span class="pct"><span class="w90">${u(90)}</span><span class="w60">${u(60)}</span><span class="w30">${u(30)}</span></span>
+            <span class="rule"></span>
+            <span>Today</span>
+          </div>
+        </div>
+        <p class="comp-foot">${STATE_TEXT[state]}${Number.isFinite(site.time) && state !== "down" ? ` · ${site.time} ms` : ""}</p>
+      </article>`;
+    }).join("");
+    list.classList.remove("skeleton");
+    list.removeAttribute("aria-busy");
+  }
+
+  function renderPast(issues, now) {
+    const el = $("#past");
+    if (!issues) { el.innerHTML = `<li class="empty">Incident history is unavailable right now — see all incidents on GitHub below.</li>`; return; }
+    const recent = issues
+      .filter((i) => Date.parse(i.created_at) > now - 30 * DAY_MS)
+      .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+      .slice(0, 10);
+    if (!recent.length) { el.innerHTML = `<li class="empty">No incidents in the last 30 days.</li>`; return; }
+    el.innerHTML = recent.map((i) => {
+      const a = Date.parse(i.created_at), b = i.closed_at ? Date.parse(i.closed_at) : null;
+      const status = b ? `Resolved · lasted ${duration((b - a) / 60000)}` : "Ongoing";
+      return `<li>
+        <span class="dot-i" ${b ? "" : "data-open"}></span>
+        <span><a class="title" href="${esc(i.html_url)}">${esc(cleanTitle(i.title))}</a>
+        <br><span class="when">${esc(whenFmt.format(a))} · ${status}</span></span>
+      </li>`;
+    }).join("");
+  }
+
+  function renderSkeleton() {
+    $("#list").innerHTML = Array.from({ length: 4 }, () => `
+      <article class="comp"><div class="comp-head"><h3>&nbsp;</h3></div>
+        <div class="meter"><div class="bars">${'<span class="bar"></span>'.repeat(CONFIG.days)}</div>
+        <div class="axis"><span>&nbsp;</span></div></div></article>`).join("");
+  }
+
+  /* ---------- tooltip ---------- */
+  const tip = $("#tip");
+  let active = null; // { bars, i } while a day is being inspected
+
+  function place(anchor) {
+    const r = anchor.getBoundingClientRect();
+    tip.hidden = false;
+    const w = tip.offsetWidth, h = tip.offsetHeight, m = 8;
+    let x = r.left + r.width / 2 - w / 2;
+    x = Math.max(m, Math.min(x, window.innerWidth - w - m));
+    let y = r.top - h - 8;
+    if (y < m) y = r.bottom + 8;
+    tip.style.left = `${x}px`;
+    tip.style.top = `${y}px`;
+  }
+
+  function showDay(bars, i) {
+    const { site, days, start } = model[+bars.dataset.idx];
+    const d = days[i];
+    bars.querySelectorAll(".bar.on").forEach((b) => b.classList.remove("on"));
+    const bar = bars.children[i];
+    bar.classList.add("on");
+    bars.classList.add("inspecting");
+    active = { bars, i };
+    let body;
+    if (d.s === "none") {
+      body = d.d0 + DAY_MS <= start ? `No data — monitoring started ${esc(dayFmt.format(start))}.` : "No data.";
+    } else {
+      body = `<span class="row"><span class="sw" style="background:var(--day-${d.s})"></span>${DAY_TEXT[d.s]}</span>` +
+        (d.down ? `<span>${duration(d.down)} of downtime</span>` : "");
+    }
+    const inc = d.incidents.length
+      ? `<ul>${d.incidents.map((x) => `<li>${esc(cleanTitle(x.title))} (#${x.number})</li>`).join("")}</ul>` : "";
+    tip.innerHTML = `<strong>${esc(site.name)} · ${esc(dayFmt.format(d.d0))}</strong>${body}${inc}`;
+    place(bar);
+  }
+
+  function showText(anchor, text) {
+    tip.innerHTML = esc(text);
+    place(anchor);
+  }
+
+  function hide() {
+    tip.hidden = true;
+    if (active) {
+      active.bars.classList.remove("inspecting");
+      active.bars.querySelectorAll(".bar.on").forEach((b) => b.classList.remove("on"));
+    }
+    active = null;
+  }
+
+  const visibleIndexes = (bars) => [...bars.children].filter((b) => b.offsetParent !== null).map((b) => +b.dataset.i);
+
+  const list = $("#list");
+  list.addEventListener("pointerover", (e) => {
+    const bar = e.target.closest(".bar");
+    if (bar && bar.parentElement.dataset.idx != null) showDay(bar.parentElement, +bar.dataset.i);
+    const info = e.target.closest(".info");
+    if (info) showText(info, info.dataset.desc);
+  });
+  list.addEventListener("pointerout", (e) => {
+    const to = e.relatedTarget;
+    const from = e.target.closest(".bars, .info");
+    if (from && !(to && from.contains(to)) && document.activeElement !== from) hide();
+  });
+  list.addEventListener("click", (e) => {
+    const bar = e.target.closest(".bar");
+    if (bar && bar.parentElement.dataset.idx != null) { showDay(bar.parentElement, +bar.dataset.i); e.stopPropagation(); }
+    const info = e.target.closest(".info");
+    if (info) { tip.hidden ? showText(info, info.dataset.desc) : hide(); e.stopPropagation(); }
+  });
+  list.addEventListener("focusin", (e) => {
+    const bars = e.target.closest(".bars");
+    if (bars && bars.dataset.idx != null) { const v = visibleIndexes(bars); showDay(bars, v[v.length - 1]); }
+    const info = e.target.closest(".info");
+    if (info) showText(info, info.dataset.desc);
+  });
+  list.addEventListener("focusout", hide);
+  list.addEventListener("keydown", (e) => {
+    const bars = e.target.closest(".bars");
+    if (!bars || !active || active.bars !== bars) return;
+    const v = visibleIndexes(bars);
+    let p = v.indexOf(active.i);
+    if (e.key === "ArrowLeft") p = Math.max(0, p - 1);
+    else if (e.key === "ArrowRight") p = Math.min(v.length - 1, p + 1);
+    else if (e.key === "Home") p = 0;
+    else if (e.key === "End") p = v.length - 1;
+    else if (e.key === "Escape") { hide(); return; }
+    else return;
+    e.preventDefault();
+    showDay(bars, v[p]);
+  });
+  document.addEventListener("click", hide);
+  window.addEventListener("scroll", hide, { passive: true });
+  window.addEventListener("resize", hide);
+
+  /* ---------- lifecycle ---------- */
+  async function refresh() {
+    try {
+      const { sites, issues } = await load();
+      const now = Date.now();
+      hide();
+      renderBanner(sites, issues);
+      renderList(sites, issues, now);
+      renderPast(issues, now);
+    } catch (err) {
+      console.error(err);
+      if (!model.length) {
+        const b = $("#banner");
+        b.dataset.state = "unknown";
+        b.innerHTML = `${ICON.bannerUnknown}<h1>Couldn’t load status data</h1><button type="button" id="retry">Try again</button>`;
+        $("#retry").onclick = refresh;
+      }
+    }
+  }
+
+  // Keep "Last checked 3 minutes ago" honest between refreshes.
+  setInterval(() => {
+    document.querySelectorAll("[data-ago]").forEach((el) => {
+      const t = +el.dataset.ago;
+      el.textContent = el.tagName === "P" ? `Last checked ${ago(t)}` : ago(t);
+    });
+  }, 30000);
+
+  renderSkeleton();
+  refresh();
+  setInterval(refresh, CONFIG.refreshMs);
+})();
+</script>
+</body>
+</html>

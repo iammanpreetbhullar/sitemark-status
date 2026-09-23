@@ -1,9 +1,15 @@
 # Upptime config for status.sitemark.in.
 # Copy into a PUBLIC repo created from https://github.com/upptime/upptime (Use this template).
-# Public, because a private repo pays for Actions minutes and a check every 5 minutes
-# runs ~8,600 times a month.
+# Public, because a private repo pays for Actions minutes and a check every 10 minutes
+# runs ~4,300 times a month.
 owner: iammanpreetbhullar
 repo: sitemark-status
+
+# One schedule for every check — Upptime has no per-site interval. 10 minutes rather than
+# the default 5 so the Database check lets Neon scale to zero (it suspends after 5 idle
+# minutes) about half the time, instead of never.
+workflowSchedule:
+  uptime: "*/10 * * * *"
 
 sites:
   # The marketing site and dashboard.

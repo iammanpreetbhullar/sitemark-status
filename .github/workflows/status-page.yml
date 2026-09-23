@@ -1,0 +1,41 @@
+# Deploys site/ (the 90-day status page) to GitHub Pages.
+#
+# Not one of Upptime's workflows, so its template updates leave it alone. The page reads
+# history/summary.json live, so it only needs deploying when site/ itself changes — not on
+# every uptime check.
+#
+# Requires Settings → Pages → Source: "GitHub Actions". Upptime's own Static Site CI keeps
+# pushing to gh-pages, which is then simply not served.
+name: Status page
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "site/**"
+      - ".github/workflows/status-page.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: status-page
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
