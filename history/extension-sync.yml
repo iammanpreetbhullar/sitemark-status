@@ -1,7 +1,7 @@
 url: https://sitemark.in/api/proxy/health/ready
-status: up
-code: 200
-responseTime: 145
-lastUpdated: 2026-10-29T01:59:16.250Z
+status: down
+code: 503
+responseTime: 1296
+lastUpdated: 2026-10-29T13:01:09.406Z
 startTime: 2026-09-23T10:32:10.664Z
 generator: Upptime <https://github.com/upptime/upptime>
