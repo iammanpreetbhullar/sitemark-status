@@ -42,19 +42,20 @@
     "url": "https://api.sitemark.in/health/ready",
     "icon": "https://icons.duckduckgo.com/ip3/api.sitemark.in.ico",
     "slug": "database",
-    "status": "up",
+    "status": "down",
     "uptime": "99.96%",
-    "uptimeDay": "100.00%",
+    "uptimeDay": "99.97%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.96%",
-    "time": 254,
-    "timeDay": 486,
-    "timeWeek": 371,
-    "timeMonth": 237,
-    "timeYear": 254,
+    "time": 264,
+    "timeDay": 697,
+    "timeWeek": 421,
+    "timeMonth": 251,
+    "timeYear": 264,
     "dailyMinutesDown": {
-      "2026-09-23": 20
+      "2026-09-23": 20,
+      "2026-10-29": 0
     }
   },
   {
@@ -80,19 +81,20 @@
     "url": "https://sitemark.in/api/proxy/health/ready",
     "icon": "https://icons.duckduckgo.com/ip3/sitemark.in.ico",
     "slug": "extension-sync",
-    "status": "up",
+    "status": "down",
     "uptime": "99.93%",
-    "uptimeDay": "100.00%",
+    "uptimeDay": "99.99%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.93%",
-    "time": 473,
-    "timeDay": 176,
-    "timeWeek": 225,
-    "timeMonth": 389,
-    "timeYear": 473,
+    "time": 483,
+    "timeDay": 549,
+    "timeWeek": 296,
+    "timeMonth": 404,
+    "timeYear": 483,
     "dailyMinutesDown": {
-      "2026-09-23": 38
+      "2026-09-23": 38,
+      "2026-10-29": 0
     }
   }
 ]
