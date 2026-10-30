@@ -25,18 +25,18 @@
     "icon": "https://icons.duckduckgo.com/ip3/api.sitemark.in.ico",
     "slug": "api",
     "status": "down",
-    "uptime": "99.96%",
-    "uptimeDay": "98.62%",
-    "uptimeWeek": "99.80%",
-    "uptimeMonth": "99.95%",
-    "uptimeYear": "99.96%",
+    "uptime": "99.95%",
+    "uptimeDay": "98.27%",
+    "uptimeWeek": "99.75%",
+    "uptimeMonth": "99.94%",
+    "uptimeYear": "99.95%",
     "time": 189,
     "timeDay": 1317,
     "timeWeek": 391,
     "timeMonth": 209,
     "timeYear": 189,
     "dailyMinutesDown": {
-      "2026-10-30": 20
+      "2026-10-30": 25
     }
   },
   {
@@ -44,20 +44,20 @@
     "url": "https://api.sitemark.in/health/ready",
     "icon": "https://icons.duckduckgo.com/ip3/api.sitemark.in.ico",
     "slug": "database",
-    "status": "degraded",
-    "uptime": "96.60%",
+    "status": "down",
+    "uptime": "96.59%",
     "uptimeDay": "0.00%",
-    "uptimeWeek": "82.05%",
-    "uptimeMonth": "95.87%",
-    "uptimeYear": "96.60%",
-    "time": 717,
-    "timeDay": 12792,
-    "timeWeek": 2775,
-    "timeMonth": 862,
-    "timeYear": 717,
+    "uptimeWeek": "82.00%",
+    "uptimeMonth": "95.86%",
+    "uptimeYear": "96.59%",
+    "time": 750,
+    "timeDay": 10463,
+    "timeWeek": 2816,
+    "timeMonth": 903,
+    "timeYear": 750,
     "dailyMinutesDown": {
       "2026-09-23": 20,
-      "2026-10-30": 1150,
+      "2026-10-30": 1155,
       "2026-10-29": 659
     }
   },
@@ -85,11 +85,11 @@
     "icon": "https://icons.duckduckgo.com/ip3/sitemark.in.ico",
     "slug": "extension-sync",
     "status": "degraded",
-    "uptime": "96.57%",
+    "uptime": "96.56%",
     "uptimeDay": "0.00%",
-    "uptimeWeek": "82.05%",
-    "uptimeMonth": "95.87%",
-    "uptimeYear": "96.57%",
+    "uptimeWeek": "82.00%",
+    "uptimeMonth": "95.86%",
+    "uptimeYear": "96.56%",
     "time": 910,
     "timeDay": 12882,
     "timeWeek": 2664,
@@ -97,7 +97,7 @@
     "timeYear": 910,
     "dailyMinutesDown": {
       "2026-09-23": 38,
-      "2026-10-30": 1150,
+      "2026-10-30": 1155,
       "2026-10-29": 659
     }
   }
