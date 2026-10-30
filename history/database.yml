@@ -1,7 +1,7 @@
 url: https://api.sitemark.in/health/ready
-status: degraded
+status: down
 code: 503
-responseTime: 36574
-lastUpdated: 2026-10-30T19:07:17.939Z
+responseTime: 3477
+lastUpdated: 2026-10-30T19:13:40.855Z
 startTime: 2026-09-23T10:31:45.949Z
 generator: Upptime <https://github.com/upptime/upptime>
