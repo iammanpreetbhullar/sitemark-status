@@ -1,7 +1,7 @@
 url: https://api.sitemark.in/health
-status: up
-code: 200
-responseTime: 152
-lastUpdated: 2026-11-26T04:33:51.723Z
+status: down
+code: 500
+responseTime: 104
+lastUpdated: 2026-11-26T15:16:03.087Z
 startTime: 2026-09-23T10:31:22.904Z
 generator: Upptime <https://github.com/upptime/upptime>
